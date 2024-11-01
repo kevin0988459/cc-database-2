@@ -1,28 +1,29 @@
 package edu.cmu.cc.minisite;
 
-import com.google.gson.JsonObject;
-
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Objects;
 
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.google.gson.JsonObject;
+
 /**
- * Task 1:
- * This query simulates the login process of a user
- * and tests whether your backend system is functioning properly.
- * Your web application will receive a pair of UserName and Password,
- * and you need to check your backend database to see if the
- * UserName and Password is a valid pair.
- * You should construct your response accordingly:
+ * Task 1: This query simulates the login process of a user and tests whether
+ * your backend system is functioning properly. Your web application will
+ * receive a pair of UserName and Password, and you need to check your backend
+ * database to see if the UserName and Password is a valid pair. You should
+ * construct your response accordingly:
  *
- * If YES, send back the userName and Profile Image URL.
- * If NOT, set userName as "Unauthorized" and Profile Image URL as "#".
+ * If YES, send back the userName and Profile Image URL. If NOT, set userName as
+ * "Unauthorized" and Profile Image URL as "#".
  */
 public class ProfileServlet extends HttpServlet {
 
@@ -38,14 +39,12 @@ public class ProfileServlet extends HttpServlet {
     /**
      * The endpoint of the database.
      *
-     * To avoid hardcoding credentials, use environment variables to include
-     * the credentials.
+     * To avoid hardcoding credentials, use environment variables to include the
+     * credentials.
      *
      * e.g., before running "mvn clean package exec:java" to start the server
-     * run the following commands to set the environment variables.
-     * export MYSQL_HOST=...
-     * export MYSQL_NAME=...
-     * export MYSQL_PWD=...
+     * run the following commands to set the environment variables. export
+     * MYSQL_HOST=... export MYSQL_NAME=... export MYSQL_PWD=...
      */
     private static String mysqlHost = System.getenv("MYSQL_HOST");
     /**
@@ -58,8 +57,8 @@ public class ProfileServlet extends HttpServlet {
     private static String mysqlPwd = System.getenv("MYSQL_PWD");
 
     /**
-     * The connection (session) with the database.
-     * HINT: pay attention to how this is used internally
+     * The connection (session) with the database. HINT: pay attention to how
+     * this is used internally
      */
     private static Connection conn;
 
@@ -73,7 +72,7 @@ public class ProfileServlet extends HttpServlet {
      * Initialize SQL connection. Standard constructor
      *
      * @throws ClassNotFoundException when an application fails to load a class
-     * @throws SQLException           on a database access error or other errors
+     * @throws SQLException on a database access error or other errors
      */
     public ProfileServlet() throws ClassNotFoundException, SQLException {
         conn = getDBConnection();
@@ -81,7 +80,8 @@ public class ProfileServlet extends HttpServlet {
 
     /**
      * A special constructor for TDD
-     * @param conn  The connection to use
+     *
+     * @param conn The connection to use
      */
     ProfileServlet(Connection conn) {
         ProfileServlet.conn = conn;
@@ -97,10 +97,10 @@ public class ProfileServlet extends HttpServlet {
     /**
      * Method that handles HttpServletRequests (GET)
      *
-     * @param request  the request object that is passed to the servlet
-     * @param response the response object that the servlet
-     *                 uses to return the headers to the client
-     * @throws IOException      if an input or output error occurs
+     * @param request the request object that is passed to the servlet
+     * @param response the response object that the servlet uses to return the
+     * headers to the client
+     * @throws IOException if an input or output error occurs
      */
     protected void doGet(final HttpServletRequest request, final HttpServletResponse response)
             throws IOException {
@@ -115,11 +115,11 @@ public class ProfileServlet extends HttpServlet {
     }
 
     /**
-     * Method to perform the SQL query, retrieve the results and
-     * construct and return a JsonObject with the expected result
+     * Method to perform the SQL query, retrieve the results and construct and
+     * return a JsonObject with the expected result
      *
-     * @param name  The username supplied via the HttpServletRequest
-     * @param pwd   The password supplied via the HttpServletRequest
+     * @param name The username supplied via the HttpServletRequest
+     * @param pwd The password supplied via the HttpServletRequest
      * @return A JsonObject with the servlet's response
      */
     JsonObject validateLoginAndReturnResult(String name, String pwd) {
