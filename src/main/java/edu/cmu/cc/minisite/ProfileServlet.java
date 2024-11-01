@@ -124,14 +124,23 @@ public class ProfileServlet extends HttpServlet {
      */
     JsonObject validateLoginAndReturnResult(String name, String pwd) {
         JsonObject result = new JsonObject();
-        String query = "SELECT A FROM B WHERE C = ? AND D = ?";
-
-        // TODO: To be implemented
-        // Use PreparedStatements, use ResultSet.getString(String columnLabel)
-        // instead of ResultSet.getString(int columnIndex) for the test cases to work.
-        // You may also look at them for expected behavior.
-        // Ensure you match the schema of the JsonObject as per the expected
-        // response of the service, and never pass/store unhashed passwords!
+        String q = "SELECT username, profile_photo_url FROM users WHERE username = ? AND pwd = ?";
+        // send the query to the database
+        try (PreparedStatement stmt = conn.prepareStatement(q)) {
+            stmt.setString(1, name);
+            stmt.setString(2, pwd);
+            ResultSet rs = stmt.executeQuery();
+            // result -> {"username": "...", "profile_photo_url": "..."}
+            if (rs.next()) {
+                result.addProperty("username", rs.getString("username"));
+                result.addProperty("profile_photo_url", rs.getString("profile_photo_url"));
+            } else {
+                result.addProperty("username", "Unauthorized");
+                result.addProperty("profile_photo_url", "#");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
         return result;
     }
