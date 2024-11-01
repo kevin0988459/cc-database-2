@@ -132,11 +132,11 @@ public class ProfileServlet extends HttpServlet {
             ResultSet rs = stmt.executeQuery();
             // result -> {"username": "...", "profile_photo_url": "..."}
             if (rs.next()) {
-                result.addProperty("username", rs.getString("username"));
-                result.addProperty("profile_photo_url", rs.getString("profile_photo_url"));
+                result.addProperty("name", rs.getString("username"));
+                result.addProperty("profile", rs.getString("profile_photo_url"));
             } else {
-                result.addProperty("username", "Unauthorized");
-                result.addProperty("profile_photo_url", "#");
+                result.addProperty("name", "Unauthorized");
+                result.addProperty("profile", "#");
             }
         } catch (SQLException e) {
             e.printStackTrace();
