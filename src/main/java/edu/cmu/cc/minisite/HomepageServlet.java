@@ -173,7 +173,7 @@ public class HomepageServlet extends HttpServlet {
         if (followeeIds.isEmpty()) {
             return commentsArray;
         }
-        // Query MongoDB for each followee top  comments
+        // Query MongoDB for each followee top comments
         MongoCursor<Document> cursor = collection.find(Filters.in("uid", followeeIds))
                 .sort(Sorts.descending("ups", "timestamp")).limit(top).projection(new Document("_id", 0)).iterator();
         try {
@@ -181,6 +181,7 @@ public class HomepageServlet extends HttpServlet {
                 Document commentDoc = cursor.next();
                 JsonObject commentJson = parseDocumentToJson(commentDoc);
                 System.out.println("followeeIds: " + followeeIds);
+                System.out.println("commentJson: " + commentJson);
                 String parentId = commentDoc.getString("parent_id");
                 // have parent
                 System.out.println("parentId: " + parentId);
