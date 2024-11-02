@@ -124,4 +124,43 @@ public class FollowerServlet extends HttpServlet {
         }
         return followers;
     }
+
+    /**
+     * Return the name followees, sorted
+     *
+     * @param userId The user's ID.
+     * @return followees.
+     */
+    public JsonArray getFollowees(String userId) {
+        JsonArray followees = new JsonArray();
+        String query = "MATCH (u:User)-[:FOLLOWS]->(f:User) "
+                + "WHERE u.username = $username "
+                + "RETURN f.username AS name "
+                + "ORDER BY f.username ASC";
+
+        try (Session session = driver.session()) {
+            StatementResult rs = session.run(query,
+                    org.neo4j.driver.v1.Values.parameters("username", userId));
+            while (rs.hasNext()) {
+                Record record = rs.next();
+                JsonObject followee = new JsonObject();
+                followee.addProperty("name", record.get("name").asString());
+                followees.add(followee);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new JsonArray();
+        }
+
+        return followees;
+    }
+
+    /**
+     * Closes the driver connection.
+     */
+    public void closeDriver() {
+        if (driver != null) {
+            driver.close();
+        }
+    }
 }

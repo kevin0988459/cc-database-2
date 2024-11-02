@@ -144,4 +144,44 @@ public class ProfileServlet extends HttpServlet {
 
         return result;
     }
+
+    /**
+     * Retrieves the user's profile information.(Task4)
+     *
+     * @param name Username.
+     * @return profile
+     */
+    public String getProfile(String name) {
+        String result;
+        String query = "SELECT username, profile_photo_url FROM users WHERE username = ?";
+
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, name);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                result = rs.getString("profile_photo_url");
+            } else {
+                result = "#";
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            result = "#";
+        }
+        return result;
+    }
+
+    /**
+     * Closes the database connection.
+     */
+    public void closeConnection() {
+        if (conn != null) {
+            try {
+                conn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 }

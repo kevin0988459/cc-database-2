@@ -2,6 +2,7 @@ package edu.cmu.cc.minisite;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 import java.util.Objects;
 
 import javax.servlet.ServletException;
@@ -19,6 +20,8 @@ import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Sorts;
 
 /**
  * Task 3: Implement your logic to return all the comments authored by this
@@ -131,5 +134,90 @@ public class HomepageServlet extends HttpServlet {
             cursor.close();
         }
         return comments;
+    }
+
+    /**
+     * Fetches a comment by its parent_id and converts it to a JsonObject. For
+     * finding parent and grandparent comments.
+     *
+     * @param parent_id
+     * @return JsonObject representation of the comment, or null if not found.
+     */
+    private JsonObject fetchCommentByParentId(String parent_id) {
+        Document commentDoc = collection.find(Filters.eq("parent_id", parent_id))
+                .projection(new Document("_id", 0))
+                .first();
+        return commentDoc != null ? parseDocumentToJson(commentDoc) : null;
+    }
+
+    /**
+     * Converts a BSON Document to a JsonObject.
+     *
+     * @param document BSON Document to convert.
+     * @return JsonObject representation of the document.
+     */
+    private JsonObject parseDocumentToJson(Document document) {
+        return JsonParser.parseString(document.toJson()).getAsJsonObject();
+    }
+
+    /**
+     * Retrieves the top comments from followees, including parent and
+     * grandparent comments.
+     *
+     * @param followeeIds List of followee user IDs.
+     * @param limit Maximum number of comments to retrieve.
+     * @return JsonArray of comments with parent and grandparent data.
+     */
+    public JsonArray getTopCommentsFromFollowees(List<String> followeeIds, int top) {
+        JsonArray commentsArray = new JsonArray();
+        // handle empty followeeIds
+        if (followeeIds.isEmpty()) {
+            return commentsArray;
+        }
+        // Query MongoDB for each followee top  comments
+        MongoCursor<Document> cursor = collection.find(Filters.in("uid", followeeIds))
+                .sort(Sorts.descending("ups", "timestamp")).limit(top).projection(new Document("_id", 0)).iterator();
+
+        try {
+            while (cursor.hasNext()) {
+                Document commentDoc = cursor.next();
+                JsonObject commentJson = parseDocumentToJson(commentDoc);
+                String parentId = commentDoc.getString("parent_id");
+                // have parent
+                if (parentId != null && !parentId.isEmpty()) {
+                    JsonObject parentJson = fetchCommentByParentId(parentId);
+                    // parent exists then parse grandparent
+                    if (parentJson != null) {
+                        String grandParentId = parentJson.get("parent_id").getAsString();
+                        if (grandParentId != null && !grandParentId.isEmpty()) {
+                            JsonObject grandParentJson = fetchCommentByParentId(grandParentId);
+                            // grandparent exists then add to parent json
+                            if (grandParentJson != null) {
+                                parentJson.add("grand_parent", grandParentJson);
+                            }
+                        }
+                        // add parent comment to followee json
+                        commentJson.add("parent", parentJson);
+                    }
+                    commentsArray.add(commentJson);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new JsonArray();
+        } finally {
+            cursor.close();
+        }
+        return commentsArray;
+    }
+
+    /**
+     * Closes the MongoDB collection. Note: MongoClient should be closed
+     * externally if needed.
+     */
+    public void closeCollection() {
+        if (collection != null) {
+            collection = null; // MongoClient manages the connection
+        }
     }
 }
