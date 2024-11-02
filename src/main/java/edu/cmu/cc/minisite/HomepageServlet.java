@@ -143,7 +143,7 @@ public class HomepageServlet extends HttpServlet {
      * @return JsonObject representation of the comment, or null if not found.
      */
     private JsonObject fetchCommentByCid(String cid) {
-        Document commentDoc = collection.find(Filters.eq("parent_id", cid))
+        Document commentDoc = collection.find(Filters.eq("cid", cid))
                 .projection(new Document("_id", 0))
                 .first();
         return commentDoc != null ? parseDocumentToJson(commentDoc) : null;
