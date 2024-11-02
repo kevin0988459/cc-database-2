@@ -195,14 +195,15 @@ public class HomepageServlet extends HttpServlet {
                             if (grandParentJson != null) {
                                 parentJson.add("grand_parent", grandParentJson);
                             }
+                            System.out.println("grandParentJson: " + grandParentJson);
                         }
                         // add parent comment to followee json
+                        System.out.println("parentJson: " + parentJson);
                         commentJson.add("parent", parentJson);
                     }
                     commentsArray.add(commentJson);
                 }
             }
-            System.out.println("commentsArray: " + commentsArray);
         } catch (Exception e) {
             e.printStackTrace();
             return new JsonArray();
