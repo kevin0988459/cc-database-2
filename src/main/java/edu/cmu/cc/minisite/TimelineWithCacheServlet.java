@@ -7,11 +7,13 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
+import java.io.IOException;
+
 import java.util.HashMap;
 import java.util.List;
+import java.util.ArrayList;
 
 /**
  * In this task you will populate a user's timeline. This task helps you
@@ -43,27 +45,49 @@ public class TimelineWithCacheServlet extends HttpServlet {
      *
      */
     private static Cache cache = new Cache();
-    private TimelineServlet timelineServlet;
+    private ProfileServlet profileServlet;
     private FollowerServlet followerServlet;
+    private HomepageServlet homepageServlet;
 
     /**
-     * Your initialization code goes here.
+     * Initializes servlet instances.
+     *
+     * @throws ServletException if an initialization error occurs.
      */
-    public TimelineWithCacheServlet() {
-        timelineServlet = new TimelineServlet();
-        followerServlet = new FollowerServlet();
-    }
-
     @Override
     public void init() throws ServletException {
         super.init();
-        timelineServlet.init();  // Call init on TimelineServlet if necessary
+        try {
+            profileServlet = new ProfileServlet();
+            followerServlet = new FollowerServlet();
+            homepageServlet = new HomepageServlet();
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
+            throw new ServletException("Initialization failed: " + e.getMessage());
+        }
     }
 
+    /**
+     * Cleans up resources by closing connections and servlet instances.
+     */
     @Override
     public void destroy() {
-        timelineServlet.destroy();  // Clean up TimelineServlet if necessary
         super.destroy();
+
+        // Close ProfileServlet resources
+        if (profileServlet != null) {
+            profileServlet.closeConnection();
+        }
+
+        // Close FollowerServlet resources
+        if (followerServlet != null) {
+            followerServlet.closeDriver();
+        }
+
+        // Close HomepageServlet resources
+        if (homepageServlet != null) {
+            homepageServlet.closeCollection();
+        }
     }
 
     /**
@@ -99,17 +123,45 @@ public class TimelineWithCacheServlet extends HttpServlet {
      * @return timeline of this user
      */
     private String getTimeline(String id) throws IOException {
+        JsonObject result = new JsonObject();
+
         // if timeline is cached, return it
         String cachedResult = cache.get(id);
         if (cachedResult != null) {
             return cachedResult;
         }
 
-        // otherwise, get it from the timeline servlet
-        String result = timelineServlet.getTimeline(id);
-        if (followerServlet.isTopUser(id)) {
-            cache.put(id, result);
+        try {
+            // result add followers
+            JsonArray followers = followerServlet.getFollowers(id);
+            result.add("followers", followers);
+
+            // get followees to get comments and add to result
+            JsonArray followeesArray = followerServlet.getFollowees(id);
+            List<String> followeeIds = new ArrayList<>();
+            for (int i = 0; i < followeesArray.size(); i++) {
+                JsonObject followee = followeesArray.get(i).getAsJsonObject();
+                followeeIds.add(followee.get("name").getAsString());
+            }
+            JsonArray comments = homepageServlet.getTopCommentsFromFollowees(followeeIds, 30);
+            result.add("comments", comments);
+
+            // get profile, name and add to result
+            String profile = profileServlet.getProfile(id);
+            result.addProperty("profile", profile);
+            result.addProperty("name", id);
+
+            // add to cache if the user is a top user
+            if (followerServlet.isTopUser(id)) {
+                cache.put(id, result.toString());
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        return result;
+
+        System.out.println("result: " + result.toString());
+        return result.toString();
     }
+
 }

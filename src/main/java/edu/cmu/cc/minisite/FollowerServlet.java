@@ -156,7 +156,7 @@ public class FollowerServlet extends HttpServlet {
     }
 
     public boolean isTopUser(String userId) {
-        String query = "MATCH (user:User {id: $userId})<-[:FOLLOWS]-(follower) "
+        String query = "MATCH (user:User {username: $userId})<-[:FOLLOWS]-(follower) "
                 + "RETURN COUNT(follower) > 300 AS isTopUser";
         try (Session session = driver.session()) {
             StatementResult rs = session.run(query,
