@@ -126,14 +126,16 @@ public class TimelineServlet extends HttpServlet {
                 JsonObject followee = followeesArray.get(i).getAsJsonObject();
                 followeeIds.add(followee.get("name").getAsString());
             }
-
+            followerServlet.closeDriver();
             JsonArray comments = homepageServlet.getTopCommentsFromFollowees(followeeIds, 30);
             result.add("comments", comments);
+            homepageServlet.closeCollection();
 
             // get profile, name and add to result
             String profile = profileServlet.getProfile(id);
             result.addProperty("profile", profile);
             result.addProperty("name", id);
+            profileServlet.closeConnection();
 
         } catch (Exception e) {
             e.printStackTrace();
