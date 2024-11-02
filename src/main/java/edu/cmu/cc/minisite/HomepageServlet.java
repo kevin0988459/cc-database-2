@@ -180,21 +180,15 @@ public class HomepageServlet extends HttpServlet {
             while (cursor.hasNext()) {
                 Document commentDoc = cursor.next();
                 JsonObject commentJson = parseDocumentToJson(commentDoc);
-                System.out.println("followeeIds: " + followeeIds);
-                System.out.println("commentJson: " + commentJson);
                 String parentId = commentDoc.getString("parent_id");
                 // have parent
-                System.out.println("parentId: " + parentId);
                 if (parentId != null && !parentId.isEmpty()) {
                     JsonObject parentJson = fetchCommentByCid(parentId);
                     // parent exists then parse grandparent
-                    System.out.println("parentJson: " + parentJson);
                     if (parentJson != null) {
                         String grandParentId = parentJson.get("parent_id").getAsString();
-                        System.out.println("grandParentId: " + grandParentId);
                         if (grandParentId != null && !grandParentId.isEmpty()) {
                             JsonObject grandParentJson = fetchCommentByCid(grandParentId);
-                            System.out.println("grand_parent" + grandParentJson);
                             // grandparent exists then add to parent json
                             if (grandParentJson != null) {
                                 parentJson.add("grand_parent", grandParentJson);

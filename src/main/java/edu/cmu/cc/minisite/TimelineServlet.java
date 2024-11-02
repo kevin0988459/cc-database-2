@@ -136,6 +136,7 @@ public class TimelineServlet extends HttpServlet {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        System.out.println("result: " + result.toString());
         return result.toString();
     }
 }
