@@ -181,7 +181,6 @@ public class HomepageServlet extends HttpServlet {
             while (cursor.hasNext()) {
                 Document commentDoc = cursor.next();
                 JsonObject commentJson = parseDocumentToJson(commentDoc);
-                System.out.println("commentJson: " + commentJson);
 
                 String parentId = commentDoc.getString("parent_id");
                 // have parent
@@ -202,6 +201,7 @@ public class HomepageServlet extends HttpServlet {
                     }
                     commentsArray.add(commentJson);
                 }
+                System.out.println("commentJson: " + commentJson);
             }
         } catch (Exception e) {
             e.printStackTrace();
