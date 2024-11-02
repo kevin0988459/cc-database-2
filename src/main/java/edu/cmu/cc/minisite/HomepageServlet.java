@@ -186,16 +186,17 @@ public class HomepageServlet extends HttpServlet {
                     JsonObject parentJson = fetchCommentByCid(parentId);
                     // parent exists then parse grandparent
                     if (parentJson != null) {
+                        // add parent comment to followee json
+                        commentJson.add("parent", parentJson);
                         String grandParentId = parentJson.get("parent_id").getAsString();
                         if (grandParentId != null && !grandParentId.isEmpty()) {
                             JsonObject grandParentJson = fetchCommentByCid(grandParentId);
                             // grandparent exists then add to parent json
                             if (grandParentJson != null) {
-                                parentJson.add("grand_parent", grandParentJson);
+                                commentJson.add("grand_parent", grandParentJson);
                             }
                         }
-                        // add parent comment to followee json
-                        commentJson.add("parent", parentJson);
+                        
                     }
                     commentsArray.add(commentJson);
                 }
