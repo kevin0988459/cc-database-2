@@ -201,8 +201,8 @@ public class HomepageServlet extends HttpServlet {
                     }
                     commentsArray.add(commentJson);
                 }
-                System.out.println("commentJson: " + commentJson);
             }
+            System.out.println("commentsArray: " + commentsArray);
         } catch (Exception e) {
             e.printStackTrace();
             return new JsonArray();
