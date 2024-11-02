@@ -180,7 +180,7 @@ public class HomepageServlet extends HttpServlet {
             while (cursor.hasNext()) {
                 Document commentDoc = cursor.next();
                 JsonObject commentJson = parseDocumentToJson(commentDoc);
-
+                System.out.println("followeeIds: " + followeeIds);
                 String parentId = commentDoc.getString("parent_id");
                 // have parent
                 System.out.println("parentId: " + parentId);
