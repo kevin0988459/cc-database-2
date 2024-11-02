@@ -111,7 +111,7 @@ public class TimelineServlet extends HttpServlet {
      * @param id user id
      * @return timeline of this user
      */
-    private String getTimeline(String id) {
+    protected String getTimeline(String id) {
         JsonObject result = new JsonObject();
         try {
             // result add followers

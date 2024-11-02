@@ -155,6 +155,20 @@ public class FollowerServlet extends HttpServlet {
         return followees;
     }
 
+    public boolean isTopUser(String userId) {
+        String query = "MATCH (user:User {id: $userId})<-[:FOLLOWS]-(follower) "
+                + "RETURN COUNT(follower) > 300 AS isTopUser";
+        try (Session session = driver.session()) {
+            StatementResult rs = session.run(query,
+                    org.neo4j.driver.v1.Values.parameters("userId", userId));
+            Record record = rs.next();
+            return record.get("isTopUser").asBoolean();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     /**
      * Closes the driver connection.
      */
