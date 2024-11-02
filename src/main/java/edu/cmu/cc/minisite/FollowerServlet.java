@@ -102,10 +102,10 @@ public class FollowerServlet extends HttpServlet {
      */
     public JsonArray getFollowers(String id) {
         JsonArray followers = new JsonArray();
-        String query = "MATCH (f:User)-[:FOLLOWS]->(u:User)"
-                + "WHERE u.username = $username"
-                + "RETURN f.username AS name, f.url AS url"
-                + "ORDER BY f.name ASC";
+        String query = "MATCH (f:User)-[:FOLLOWS]->(u:User) "
+                + "WHERE u.username = $username "
+                + "RETURN f.username AS name, f.url AS url "
+                + "ORDER BY f.username ASC";
         try (Session s = driver.session()) {
             StatementResult rs = s.run(query,
                     org.neo4j.driver.v1.Values.parameters("username", id));
