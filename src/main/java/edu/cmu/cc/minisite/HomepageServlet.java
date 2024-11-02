@@ -193,8 +193,10 @@ public class HomepageServlet extends HttpServlet {
                             // grandparent exists then add to parent json
                             if (grandParentJson != null) {
                                 parentJson.add("grand_parent", grandParentJson);
+                                System.out.println("grand_parent" + grandParentJson);
                             }
                         }
+                        System.out.println("parentJson: " + parentJson);
                         // add parent comment to followee json
                         commentJson.add("parent", parentJson);
                     }
