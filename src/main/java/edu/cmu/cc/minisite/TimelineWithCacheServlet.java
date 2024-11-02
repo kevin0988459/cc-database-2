@@ -54,6 +54,18 @@ public class TimelineWithCacheServlet extends HttpServlet {
         followerServlet = new FollowerServlet();
     }
 
+    @Override
+    public void init() throws ServletException {
+        super.init();
+        timelineServlet.init();  // Call init on TimelineServlet if necessary
+    }
+
+    @Override
+    public void destroy() {
+        timelineServlet.destroy();  // Clean up TimelineServlet if necessary
+        super.destroy();
+    }
+
     /**
      * Don't modify this method.
      *
