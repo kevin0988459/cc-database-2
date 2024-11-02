@@ -137,14 +137,13 @@ public class HomepageServlet extends HttpServlet {
     }
 
     /**
-     * Fetches a comment by its parent_id and converts it to a JsonObject. For
-     * finding parent and grandparent comments.
+     * Fetches a parent comment by its c_id and converts it to a JsonObject.
      *
      * @param parent_id
      * @return JsonObject representation of the comment, or null if not found.
      */
-    private JsonObject fetchCommentByParentId(String parent_id) {
-        Document commentDoc = collection.find(Filters.eq("parent_id", parent_id))
+    private JsonObject fetchCommentByCid(String cid) {
+        Document commentDoc = collection.find(Filters.eq("parent_id", cid))
                 .projection(new Document("_id", 0))
                 .first();
         return commentDoc != null ? parseDocumentToJson(commentDoc) : null;
@@ -185,20 +184,18 @@ public class HomepageServlet extends HttpServlet {
                 String parentId = commentDoc.getString("parent_id");
                 // have parent
                 if (parentId != null && !parentId.isEmpty()) {
-                    JsonObject parentJson = fetchCommentByParentId(parentId);
+                    JsonObject parentJson = fetchCommentByCid(parentId);
                     // parent exists then parse grandparent
                     if (parentJson != null) {
                         String grandParentId = parentJson.get("parent_id").getAsString();
                         if (grandParentId != null && !grandParentId.isEmpty()) {
-                            JsonObject grandParentJson = fetchCommentByParentId(grandParentId);
+                            JsonObject grandParentJson = fetchCommentByCid(grandParentId);
                             // grandparent exists then add to parent json
                             if (grandParentJson != null) {
                                 parentJson.add("grand_parent", grandParentJson);
                             }
-                            System.out.println("grandParentJson: " + grandParentJson);
                         }
                         // add parent comment to followee json
-                        System.out.println("parentJson: " + parentJson);
                         commentJson.add("parent", parentJson);
                     }
                     commentsArray.add(commentJson);

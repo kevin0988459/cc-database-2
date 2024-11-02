@@ -121,7 +121,6 @@ public class TimelineServlet extends HttpServlet {
             // get followees to get comments and add to result
             JsonArray followeesArray = followerServlet.getFollowees(id);
             List<String> followeeIds = new ArrayList<>();
-            System.out.println("followeesArray: " + followeesArray);
             for (int i = 0; i < followeesArray.size(); i++) {
                 JsonObject followee = followeesArray.get(i).getAsJsonObject();
                 followeeIds.add(followee.get("name").getAsString());
