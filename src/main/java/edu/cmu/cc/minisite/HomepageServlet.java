@@ -183,6 +183,7 @@ public class HomepageServlet extends HttpServlet {
 
                 String parentId = commentDoc.getString("parent_id");
                 // have parent
+                System.out.println("parentId: " + parentId);
                 if (parentId != null && !parentId.isEmpty()) {
                     JsonObject parentJson = fetchCommentByCid(parentId);
                     // parent exists then parse grandparent
